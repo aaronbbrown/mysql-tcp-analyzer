@@ -14,6 +14,8 @@ sudo tcpdump -i any -G 15 -W 1 -w mysql.pcap 'port 3306'
 # preprocess tcpdump
 tshark -r mysql.pcap \
   -Y mysql -Tjson \
+  -e tcp.flags.fin \
+  -e tcp.flags.reset \
   -e tcp.analysis.lost_segment \
   -e tcp.analysis.ack_lost_segment \
   -e frame.number \
