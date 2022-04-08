@@ -1,5 +1,5 @@
 // this expects a file in the format of the output of the following command piped into stdin:
-// tshark -r mysql.pcap -Y mysql -Tjson -e tcp.analysis.lost_segment -e tcp.analysis.ack_lost_segment -e frame.number -e frame.time_relative -e tcp.stream -e mysql.command -e mysql.query -e mysql.payload -e mysql.response_code
+// tshark -r mysql.pcap -Tjson -e tcp.flags.fin -e tcp.flags.reset -e tcp.analysis.lost_segment -e tcp.analysis.ack_lost_segment -e frame.number -e frame.time_relative -e tcp.stream -e mysql.command -e mysql.query -e mysql.payload -e mysql.response_code
 package main
 
 import (
@@ -10,6 +10,8 @@ import (
 	"io"
 	"log"
 	"os"
+	"sort"
+	"time"
 
 	"github.com/davecgh/go-spew/spew"
 )
@@ -108,5 +110,22 @@ func main() {
 			log.Fatal(err)
 		}
 		fmt.Println(string(b))
+	case "concurrency":
+		frames := make(Frames, len(fp.Frames))
+
+		copy(frames, fp.Frames)
+
+		sort.SliceStable(frames, func(i, j int) bool {
+			return frames[i].TimeRelative < frames[j].TimeRelative
+		})
+
+		dbs := NewDurationBuckets(1 * time.Millisecond)
+		for _, frame := range frames {
+			if err := dbs.AddFrame(*frame); err != nil {
+				fmt.Fprintf(os.Stderr, "%v: %+v", err, frame)
+			}
+		}
+		fmt.Print(dbs.TSV())
 	}
+
 }

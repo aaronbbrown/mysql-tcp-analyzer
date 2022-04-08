@@ -85,6 +85,22 @@ func (fp *FrameParser) parseLayers(layers Layers, index int) (*Frame, error) {
 		frame.MySQLCommand = command
 	}
 
+	if val, ok := layers["tcp.flags.fin"]; ok {
+		var err error
+		frame.TCPFin, err = strconv.ParseBool(val[0])
+		if err != nil {
+			return &frame, err
+		}
+	}
+
+	if val, ok := layers["tcp.flags.reset"]; ok {
+		var err error
+		frame.TCPReset, err = strconv.ParseBool(val[0])
+		if err != nil {
+			return &frame, err
+		}
+	}
+
 	if val, ok := layers["mysql.query"]; ok {
 		frame.MySQLQuery = NewMySQLQuery(val[0])
 		// add it to the list of unacknowledged queries

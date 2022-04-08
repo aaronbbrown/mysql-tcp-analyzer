@@ -10,6 +10,8 @@ type Frame struct {
 	Number       int
 	TimeRelative time.Duration
 	TCPStream    int
+	TCPFin       bool
+	TCPReset     bool
 	MySQLCommand int
 	MySQLQuery   MySQLQuery
 }
