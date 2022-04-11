@@ -119,7 +119,7 @@ func main() {
 			return frames[i].TimeRelative < frames[j].TimeRelative
 		})
 
-		dbs := NewDurationBuckets(1 * time.Millisecond)
+		dbs := NewDurationBuckets(100 * time.Millisecond)
 		for _, frame := range frames {
 			if err := dbs.AddFrame(*frame); err != nil {
 				fmt.Fprintf(os.Stderr, "%v: %+v", err, frame)
